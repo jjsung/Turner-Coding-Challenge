@@ -1,0 +1,20 @@
+--#1
+SELECT EMPLOYEE.Name AS Employee, MANAGER.Name AS "Manager"
+FROM EMPLOYEE 
+LEFT OUTER JOIN EMPLOYEE MANAGER ON EMPLOYEE.ManagerSSN = manager.SSN
+
+--#2
+SELECT  PROJECT.Pname AS "Project", count(WorksOn.EmpSSN) AS "Count"
+FROM PROJECT 
+INNER JOIN WorksOn ON PROJECT.PID = WorksOn.PID
+GROUP BY PROJECT.Pname
+
+--#3
+--Not the most efficient
+DECLARE	@PName	[varchar](50)
+SET @PName =  'Project3' --'Project2' 'Project3'
+
+SELECT top 1 e.Name, e.Level FROM Employee e where e.SSN in 
+	(SELECT WorksOn.EmpSSN FROM WorksOn where WorksOn.PID =
+		(SELECT PROJECT.PID FROM PROJECT where PROJECT.Pname = @PName))
+order by level asc

@@ -1,0 +1,72 @@
+--#1
+SELECT EMPLOYEE.Name AS Employee, MANAGER.Name AS "Manager"
+FROM EMPLOYEE 
+LEFT OUTER JOIN EMPLOYEE MANAGER ON EMPLOYEE.ManagerSSN = manager.SSN
+
+--#2
+SELECT  PROJECT.Pname AS "Project", count(WorksOn.EmpSSN) AS "Count"
+FROM PROJECT 
+INNER JOIN WorksOn ON PROJECT.PID = WorksOn.PID
+GROUP BY PROJECT.Pname
+
+--#3
+--Not the most efficient
+DECLARE	@PName	[varchar](50)
+SET @PName =  'Project3' --'Project2' 'Project3'
+
+SELECT top 1 e.Name, e.Level FROM Employee e where e.SSN in 
+	(SELECT WorksOn.EmpSSN FROM WorksOn where WorksOn.PID =
+		(SELECT PROJECT.PID FROM PROJECT where PROJECT.Pname = @PName))
+order by level asc
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE [dbo].[EMPLOYEE](
+	[Name] [varchar](50) NOT NULL,
+	[SSN] [char](9) primary key   NOT NULL,
+	[ManagerSSN] [char](9),
+	--[ProjectID],
+	[Level] [tinyint] NOT NULL
+) ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[PROJECT](
+	[PID] [tinyint] primary key  NOT NULL,
+	[Pname] [varchar](50) NOT NULL,
+) ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[WorksOn](
+	[EmpSSN] [char](9) FOREIGN KEY REFERENCES EMPLOYEE(SSN) NOT NULL,
+	[PID] [tinyint] FOREIGN KEY REFERENCES PROJECT(PID) NOT NULL,
+	primary key(EmpSSN,PID),
+) ON [PRIMARY]
+GO
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+INSERT INTO [dbo].[EMPLOYEE] ([Name],[SSN],[ManagerSSN],[Level]) VALUES ('John','1','5',3);
+INSERT INTO [dbo].[EMPLOYEE] ([Name],[SSN],[ManagerSSN],[Level]) VALUES ('Mark','2','8',2);
+INSERT INTO [dbo].[EMPLOYEE] ([Name],[SSN],[ManagerSSN],[Level]) VALUES ('steve','3','8',2);
+INSERT INTO [dbo].[EMPLOYEE] ([Name],[SSN],[ManagerSSN],[Level]) VALUES ('tom','4','3',3);
+INSERT INTO [dbo].[EMPLOYEE] ([Name],[SSN],[ManagerSSN],[Level]) VALUES ('lara','5','8',2);
+INSERT INTO [dbo].[EMPLOYEE] ([Name],[SSN],[ManagerSSN],[Level]) VALUES ('simon','6','2',3);
+INSERT INTO [dbo].[EMPLOYEE] ([Name],[SSN],[ManagerSSN],[Level]) VALUES ('david','7','4',4);
+INSERT INTO [dbo].[EMPLOYEE] ([Name],[SSN],[ManagerSSN],[Level]) VALUES ('ben','8',null,1);
+INSERT INTO [dbo].[EMPLOYEE] ([Name],[SSN],[ManagerSSN],[Level]) VALUES ('stacy','9','2',3);
+INSERT INTO [dbo].[EMPLOYEE] ([Name],[SSN],[ManagerSSN],[Level]) VALUES ('sam','10','5',3);
+
+INSERT INTO [dbo].[PROJECT] ([PID],[Pname]) VALUES ('1','Project1');
+INSERT INTO [dbo].[PROJECT] ([PID],[Pname]) VALUES ('2','Project2');
+INSERT INTO [dbo].[PROJECT] ([PID],[Pname]) VALUES ('3','Project3');
+
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('1',1);
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('2',1);
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('3',1);
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('4',1);
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('5',1);
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('6',2);
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('7',2);
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('8',3);
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('9',3);
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('10',3);
+
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('4',2);
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('5',2)
+INSERT INTO [dbo].[WorksOn] ([EmpSSN],[PID]) VALUES ('5',3)
